@@ -4,9 +4,9 @@ class Database:
     def __init__ (self, url: str, key: str):
         self.supabase: Client = create_client(url, key)
 
-    def add_user(self, name: str, surname: str, chat_id, user_id):
+    def add_user(self, name: str, surname: str, chat_id):
         try:
-            data = {"name": name, "surname": surname, "chat_id": chat_id, "user_id": user_id}  
+            data = {"name": name, "surname": surname, "chat_id": chat_id}  
             response = self.supabase.table("QuizDatabase").insert(data).execute()
             
             if response.data:
