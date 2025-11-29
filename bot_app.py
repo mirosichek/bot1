@@ -3,7 +3,7 @@ from registrtion import registration_router
 from inline_key import quiz_ruoter
 
 class BotApp:
-    def __init__(self, token, db):  # <- Этот конструктор должен быть!
+    def __init__(self, token, db):  
         self.bot = Bot(token=token)
         self.dp = Dispatcher()
         self.db = db
