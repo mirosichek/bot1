@@ -19,19 +19,31 @@ async def get_questionFlag(message: types.Message, state: FSMContext):
     flag = message.text
 
     questions = quiz.get_question(flag)
-    if not questions:
+    if not questions: 
         await message.answer("Вопросов нет")
         await state.clear()
         return
     
-    for question in questions:
-        answers = quiz.get_answers(question["id"])
-        keyboard = quiz.build_keyboard(question["id"], answers)
+    users=quiz.get_users()
+    for user in users:
+        try:
+            await message.bot.send_message(
+                chat_id=user["chat_id"],
+                text="Новый вопрос уже доступен!"
+            )
+        except Exception as e:
+            print(f"Не удалось отправить {user['chat_id']}: {e}")
 
-        await message.answer(
-            question["Question"],
-            reply_markup=keyboard
-        )
+        for question in questions:
+            answers = quiz.get_answers(question["id"])
+            keyboard = quiz.build_keyboard(question["id"], answers)
+
+            await message.bot.send_message(
+                chat_id=user["chat_id"],
+                text=question["Question"],
+                reply_markup=keyboard
+)
+
 
     await state.clear()
 

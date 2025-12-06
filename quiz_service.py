@@ -10,6 +10,9 @@ class QuizService:
     def get_answers(self, question_id: int):
         answer = self.db.read_answers(question_id)
         return answer or []
+    
+    def get_users(self):
+        return self.db.read_users()
 
     def build_keyboard(self, question_id: int, answers: list):
         keyboard = []

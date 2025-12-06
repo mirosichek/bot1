@@ -23,7 +23,7 @@ class Database:
     def read_question(self, flag: str ): 
         response = self.supabase.table("Questions") \
             .select("id, Question") \
-            .eq("Flag", "универ") \
+            .eq("Flag", flag) \
             .execute()
         if response.data:
             return response.data
@@ -35,4 +35,19 @@ class Database:
             .eq("Question", question_id) \
             .execute()
         return response.data or []
+
+    def read_users(self):
+        response = self.supabase.table("QuizDatabase") \
+            .select("chat_id") \
+            .execute()
+        return response.data or []
+
+    def get_user_by_chat_id(self, chat_id: int):
+        response = self.supabase.table("QuizDatabase") \
+            .select("id") \
+            .eq("chat_id", str(chat_id)) \
+            .limit(1) \
+            .execute()
+
+        return response.data[0] if response.data else None
 

@@ -32,10 +32,23 @@ async def get_surname(message: types.Message, state: FSMContext):
 
     chat_id = message.chat.id
 
+    existing_user = db.get_user_by_chat_id(chat_id)
+
+    if existing_user:
+        await message.answer("✅ Вы уже зарегистрированы")
+        await state.clear()
+        return
+
     db.add_user(
-        name=data["name"], 
+        name=data["name"],
         surname=data["surname"],
         chat_id=chat_id,
     )
-    await message.answer(f"Регистрация завершена! Имя: {data['name']}, Фамилия: {data['surname']}")
+
+    await message.answer(
+        f"✅ Регистрация завершена!\n"
+        f"Имя: {data['name']}\n"
+        f"Фамилия: {data['surname']}"
+    )
+
     await state.clear()
