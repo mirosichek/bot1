@@ -3,6 +3,8 @@ from bot_app import BotApp
 from database import Database
 import os
 import registrtion as registrtion
+import quiz_service as QuizService
+import send_messeges
 
 TOKEN = os.environ.get("BOT_TOKEN") or "8425256609:AAGQAseZO2ZlhV04H-cSDou_hDQ8uVj7ObI"
 SUPABASE_URL = os.environ.get("SUPABASE_URL") or "https://zxdprwvrgzqpxyvxksud.supabase.co"
@@ -12,8 +14,13 @@ def main():
     db = Database(SUPABASE_URL, SUPABASE_KEY)
     registrtion.db = db
 
+    quiz = QuizService.QuizService(db)
+    send_messeges.quiz = quiz   
+
     app = BotApp(TOKEN, db)
     asyncio.run(app.run())
+
+    
 
 if __name__ == "__main__":
     try:

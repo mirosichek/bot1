@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher
 from registrtion import registration_router
-from inline_key import quiz_ruoter
+from send_messeges import quiz_router
 
 class BotApp:
     def __init__(self, token, db):  
@@ -8,7 +8,7 @@ class BotApp:
         self.dp = Dispatcher()
         self.db = db
         self.dp.include_router(registration_router)
-        self.dp.include_router(quiz_ruoter)
+        self.dp.include_router(quiz_router)
 
     async def run(self):
         print("Бот запущен!")

@@ -19,3 +19,20 @@ class Database:
         except Exception as e:
             print("Неизвестная ошибка:", e)
             return False
+        
+    def read_question(self, flag: str ): 
+        response = self.supabase.table("Questions") \
+            .select("id, Question") \
+            .eq("Flag", "универ") \
+            .execute()
+        if response.data:
+            return response.data
+        return []
+    
+    def read_answers(self, question_id: int):
+        response = self.supabase.table("QuestionAnswer") \
+            .select("id, Answer, Right") \
+            .eq("Question", question_id) \
+            .execute()
+        return response.data or []
+
