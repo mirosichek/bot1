@@ -6,10 +6,12 @@ from database import Database as db
 
 registration_router = Router()
 db = None
+quiz = None
 
 class RegistrationState(StatesGroup):
     waiting_for_name = State()
     waiting_for_surname = State()
+    waiting_for_comand=State()
 
 @registration_router.message(Command("reg"))
 async def start_registration(message: types.Message, state: FSMContext):
@@ -28,27 +30,41 @@ async def get_name(message: types.Message, state: FSMContext):
 @registration_router.message(RegistrationState.waiting_for_surname)
 async def get_surname(message: types.Message, state: FSMContext):
     await state.update_data(surname=message.text)
-    data = await state.get_data()
 
     chat_id = message.chat.id
-
-    existing_user = db.get_user_by_chat_id(chat_id)
-
-    if existing_user:
+    if db.get_user_by_chat_id(chat_id):
         await message.answer("✅ Вы уже зарегистрированы")
         await state.clear()
         return
+
+    teams = quiz.get_teams()
+    keyboard = quiz.build_team_keyboard(teams)
+
+    await state.set_state(RegistrationState.waiting_for_comand)
+    await message.answer("Выберите команду:", reply_markup=keyboard)
+    
+@registration_router.callback_query(
+    RegistrationState.waiting_for_comand,
+    lambda c: c.data.startswith("team:")
+)
+async def choose_team(callback: types.CallbackQuery, state: FSMContext):
+    team_id = int(callback.data.split(":")[1])
+    data = await state.get_data()
+
+    chat_id = callback.message.chat.id
 
     db.add_user(
         name=data["name"],
         surname=data["surname"],
         chat_id=chat_id,
+        team_id=team_id
     )
 
-    await message.answer(
+    await callback.message.answer(
         f"✅ Регистрация завершена!\n"
         f"Имя: {data['name']}\n"
         f"Фамилия: {data['surname']}"
     )
 
+    await callback.answer()
     await state.clear()

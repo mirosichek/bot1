@@ -4,21 +4,15 @@ class Database:
     def __init__ (self, url: str, key: str):
         self.supabase: Client = create_client(url, key)
 
-    def add_user(self, name: str, surname: str, chat_id):
-        try:
-            data = {"name": name, "surname": surname, "chat_id": chat_id}  
-            response = self.supabase.table("QuizDatabase").insert(data).execute()
-            
-            if response.data:
-                print("Данные успешно добавлены:", response.data)
-                return True
-            else:
-                print("Не удалось добавить данные")
-                return False
-                
-        except Exception as e:
-            print("Неизвестная ошибка:", e)
-            return False
+    def add_user(self, name: str, surname: str, chat_id: int, team_id: int):
+        data = {
+            "name": name,
+            "surname": surname,
+            "chat_id": chat_id,
+            "team_id": team_id
+        }
+
+        self.supabase.table("QuizDatabase").insert(data).execute()        
         
     def read_question(self, flag: str ): 
         response = self.supabase.table("Questions") \
@@ -48,6 +42,5 @@ class Database:
             .eq("chat_id", str(chat_id)) \
             .limit(1) \
             .execute()
-
+            
         return response.data[0] if response.data else None
-

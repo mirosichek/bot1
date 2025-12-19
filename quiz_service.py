@@ -28,4 +28,25 @@ class QuizService:
 
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
     
+    def get_teams(self):
+        response = self.db.supabase.table("Teams") \
+            .select("id, team") \
+            .execute()
+
+        return response.data or []
+
+    
+    def build_team_keyboard(self, teams: list):
+        keyboard = []
+
+        for team in teams:
+            keyboard.append([
+                InlineKeyboardButton(
+                    text=team["team"],
+                    callback_data=f"team:{team['id']}"
+                )
+            ])
+
+        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+    
 
