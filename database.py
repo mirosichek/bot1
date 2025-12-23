@@ -9,7 +9,7 @@ class Database:
             "name": name,
             "surname": surname,
             "chat_id": chat_id,
-            "team_id": team_id
+            "group": team_id
         }
 
         self.supabase.table("QuizDatabase").insert(data).execute()        

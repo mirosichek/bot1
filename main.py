@@ -15,7 +15,8 @@ def main():
     registrtion.db = db
 
     quiz = QuizService.QuizService(db)
-    send_messeges.quiz = quiz   
+    send_messeges.quiz = quiz 
+    registrtion.quiz = quiz 
 
     app = BotApp(TOKEN, db)
     asyncio.run(app.run())
