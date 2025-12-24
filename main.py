@@ -2,8 +2,8 @@ import asyncio
 from bot_app import BotApp
 from database import Database
 import os
-import registrtion as registrtion
-import quiz_service as QuizService
+import registrtion
+from quiz_service import QuizService
 import send_messeges
 
 TOKEN = os.environ.get("BOT_TOKEN") or "8425256609:AAGQAseZO2ZlhV04H-cSDou_hDQ8uVj7ObI"
@@ -12,11 +12,13 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6Ik
 
 def main():
     db = Database(SUPABASE_URL, SUPABASE_KEY)
-    registrtion.db = db
+    quiz = QuizService()
 
-    quiz = QuizService.QuizService(db)
-    send_messeges.quiz = quiz 
-    registrtion.quiz = quiz 
+    registrtion.db = db
+    registrtion.quiz = quiz
+
+    send_messeges.db = db
+    send_messeges.quiz = quiz
 
     app = BotApp(TOKEN, db)
     asyncio.run(app.run())

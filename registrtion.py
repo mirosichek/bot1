@@ -28,40 +28,48 @@ async def get_name(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationState.waiting_for_surname)
     await message.answer("Отлично! Теперь введи фамилию")
 
-
 @registration_router.message(RegistrationState.waiting_for_surname)
 async def get_surname(message: types.Message, state: FSMContext):
     await state.update_data(surname=message.text)
-
     chat_id = message.chat.id
-    if db.get_user_by_chat_id(chat_id):
+
+    user_resp = db.supabase.table("QuizDatabase") \
+        .select("id") \
+        .eq("chat_id", chat_id) \
+        .limit(1) \
+        .execute()
+
+    if user_resp.data:
         await message.answer("✅ Вы уже зарегистрированы")
         await state.clear()
         return
 
-    teams = quiz.get_teams()
-    keyboard = quiz.build_team_keyboard(teams)
+    teams_resp = db.supabase.table("Teams") \
+        .select("id, team") \
+        .execute()
 
+    keyboard = quiz.build_team_keyboard(teams_resp.data or [])
     await state.set_state(RegistrationState.waiting_for_command)
     await message.answer("Выберите команду:", reply_markup=keyboard)
-
 
 @registration_router.callback_query(
     RegistrationState.waiting_for_command,
     lambda c: c.data.startswith("team:")
 )
 async def choose_team(callback: types.CallbackQuery, state: FSMContext):
-    team_name = callback.data.split(":")[1]
+    team_id = int(callback.data.split(":")[1])
     data = await state.get_data()
     chat_id = callback.message.chat.id
 
-    db.add_user(
-        name=data["name"],
-        surname=data["surname"],
-        chat_id=chat_id,
-        team_id=team_name
-    )
+    db.supabase.table("QuizDatabase").insert({
+        "name": data["name"],
+        "surname": data["surname"],
+        "chat_id": chat_id,
+        "group_id": team_id,
+        "score": 0
+    }).execute()
 
     await callback.message.answer("✅ Регистрация завершена!")
     await callback.answer()
     await state.clear()
+
